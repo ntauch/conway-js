@@ -7,15 +7,29 @@
 <body>
     <canvas id="canvasBoard"></canvas>
     <div>
-        Anzahl Felder: <span id="counter"></span>
-        Anzahl Zellen: <span id="cellCounter"></span>
+        Anzahl Felder: <span id="amountOfFields"></span>
+    </div>
+    <div>
+        Lebendige Zellen: <span id="cellCounter"></span>
+    </div>
+    <div>
+        Generation: <span id="generationCounter"></span>
     </div>
 <footer>
     <script src="conway.js"></script>
     <script>
         (function () {
             let game = new conway();
-            game.init(0, 0, 100, 100, 5);
+            let params = {
+                boardWidth: 100,
+                boardHeight: 100,
+                scaling: 5,
+                canvasSelector: 'canvasBoard',
+                amountOfFields: 'amountOfFields',
+                livingCellsCounter: 'cellCounter',
+                generationCounter: 'generationCounter'
+            };
+            game.init(params);
         })();
     </script>
 </footer>

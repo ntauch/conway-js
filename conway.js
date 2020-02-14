@@ -9,11 +9,12 @@ let conway = (function () {
         const COLOR_GROUND = '#ffffff';
         const COLOR_CELL = '#222222';
         let cycleCounter = 0;
+        let generationCounter = undefined;
 
         // Metadata for external view
         this.numberOfCells = undefined;
         this.renderTime = undefined;
-        let canvas, canvasCtx, width, height, scaling, startTime, time, requestId;
+        let canvas, canvasCtx, width, height, scaling, startTime, time;
         let board = new Array(0);
 
         /**
@@ -74,6 +75,11 @@ let conway = (function () {
                     let boardYLength = board[x].length;
                     let newBoardCurrentCell = newBoard[x][y];
                     let neighbourCounter = 0;
+                    /**
+                     * We need to check the surrounding neighbours from x - 1 to x + 1 and y - 1 to y + 1.
+                     * A lot if implementations do this very inefficiently by hardcoding each of these cases,
+                     * while it is much easier to use two for-loops.
+                     */
                     for (let i = -1; i <= 1; i++) {
                         for (let j = -1; j <= 1; j++) {
                             // Make sure we're not checking ourselves
@@ -114,6 +120,7 @@ let conway = (function () {
         }
 
         async function animate() {
+            generationCounter.textContent = cycleCounter;
             time = Date.now();
             if (startTime === undefined) {
                 startTime = time;
@@ -148,21 +155,25 @@ let conway = (function () {
 
         /**
          * Initializes the game.
-         * @param x The x coordinate for the board.
-         * @param y The y coordinate for the board.
-         * @param w Number of cells on the x-axis.
-         * @param h Number of cells on the y-axis.
-         * @param paramScaling Optional scaling parameter. For example a value of 2 will scale the board to twice the size.
+         * @param params Object with the following properties:
+         *        int boardWidth: The width of the game board in pixels (default 100).
+         *        int boardHeight: The height of the game board in pixels (default 100).
+         *        int scaling: The pixel scaling to increase visibility of the cells (default 2).
+         *        string canvasSelector: DOM-selector for the canvas element.
+         *        string amountOfFields: DOM-selector for the total amount of fields on the board.
+         *        string livingCellsCounter: DOM-selector for the living cell counter.
+         *        string generationCounter: DOM-selector for the generation counter.
          */
-        this.init = (x, y, w, h, paramScaling) => {
-            width = w;
-            height = h;
-            scaling = paramScaling ? paramScaling : 1;
-            canvas = getDomElement('canvasBoard');
+        this.init = (params) => {
+            width = params.boardWidth;
+            height = params.boardHeight;
+            scaling = params.scaling ? params.scaling : 2;
+            canvas = getDomElement(params.canvasSelector);
             canvas.width = width * scaling;
             canvas.height = height * scaling;
             canvasCtx = canvas.getContext('2d');
-            let counter = getDomElement('counter');
+            let counter = getDomElement(params.amountOfFields);
+            generationCounter = getDomElement(params.generationCounter);
             counter.textContent = width * height;
             initBoardArray(width, height);
             requestAnimationFrame(animate);
