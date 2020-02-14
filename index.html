@@ -15,6 +15,10 @@
     <div>
         Generation: <span id="generationCounter"></span>
     </div>
+    <div>
+        Cycles per Second (Average): <span id="cyclesPerSecondCounter"></span>
+    </div>
+
 <footer>
     <script src="conway.js"></script>
     <script>
@@ -23,11 +27,12 @@
             let params = {
                 boardWidth: 100,
                 boardHeight: 100,
-                scaling: 5,
+                scaling: 10,
                 canvasSelector: 'canvasBoard',
                 amountOfFields: 'amountOfFields',
                 livingCellsCounter: 'cellCounter',
-                generationCounter: 'generationCounter'
+                generationCounter: 'generationCounter',
+                cyclesPerSecondCounter: 'cyclesPerSecondCounter'
             };
             game.init(params);
         })();

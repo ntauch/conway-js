@@ -10,6 +10,7 @@ let conway = (function () {
         const COLOR_CELL = 'rgba(213,71,75,0.73)';
         let cycleCounter = 0;
         let generationCounter = undefined;
+        let cyclesPerSecondCounter = undefined;
         let canvas, canvasCtx, width, height, scaling, startTime, time;
         let board = new Array(0);
 
@@ -123,6 +124,8 @@ let conway = (function () {
             }
 
             let elapsedSeconds = (time - startTime) / 1000;
+            cyclesPerSecondCounter.textContent = Number.parseFloat(cycleCounter / elapsedSeconds).toPrecision(3);
+
             cycle();
             drawBoard();
 
@@ -161,9 +164,9 @@ let conway = (function () {
          *        string generationCounter: DOM-selector for the generation counter.
          */
         this.init = (params) => {
-            width = params.boardWidth | 100;
-            height = params.boardHeight | 100;
-            scaling = params.scaling | 2;
+            width = params.boardWidth ? params.boardWidth : 100;
+            height = params.boardHeight ? params.boardWidth : 100;
+            scaling = params.scaling  ? params.scaling : 2;
             canvas = getDomElement(params.canvasSelector);
             canvas.width = width * scaling;
             canvas.height = height * scaling;
@@ -171,6 +174,7 @@ let conway = (function () {
             let counter = getDomElement(params.amountOfFields);
             counter.textContent = width * height;
             generationCounter = getDomElement(params.generationCounter);
+            cyclesPerSecondCounter = getDomElement(params.cyclesPerSecondCounter);
             initBoardArray(width, height);
             requestAnimationFrame(animate);
         }
