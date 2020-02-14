@@ -6,12 +6,15 @@
 </head>
 <body>
     <canvas id="canvasBoard"></canvas>
+    <div>
+        Anzahl Zellen: <span id="counter"></span>
+    </div>
 <footer>
     <script src="conway.js"></script>
     <script>
         (function () {
             let game = new conway();
-            game.init(0, 0, 100, 100);
+            game.init(0, 0, 100, 100, 5);
         })();
     </script>
 </footer>
