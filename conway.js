@@ -11,7 +11,8 @@ let conway = (function () {
         let cycleCounter = 0;
         let generationCounter = undefined;
         let cyclesPerSecondCounter = undefined;
-        let canvas, canvasCtx, width, height, scaling, startTime, time;
+        let cyclesPerSecondAverageCounter = undefined;
+        let canvas, canvasCtx, width, height, scaling, startTime, time, lastCycleTime;
         let board = new Array(0);
 
         /**
@@ -33,9 +34,39 @@ let conway = (function () {
          *
          */
         class Cell {
+            state = undefined;
+            lastState = undefined;
             constructor(state) {
                 this.state = state;
             }
+        }
+
+        function recursiveDeepCopy(o) {
+            let newO,
+                i;
+
+            if (typeof o !== 'object') {
+                return o;
+            }
+            if (!o) {
+                return o;
+            }
+
+            if ('[object Array]' === Object.prototype.toString.apply(o)) {
+                newO = [];
+                for (i = 0; i < o.length; i += 1) {
+                    newO[i] = recursiveDeepCopy(o[i]);
+                }
+                return newO;
+            }
+
+            newO = {};
+            for (i in o) {
+                if (o.hasOwnProperty(i)) {
+                    newO[i] = recursiveDeepCopy(o[i]);
+                }
+            }
+            return newO;
         }
 
         /**
@@ -51,7 +82,10 @@ let conway = (function () {
                     } else {
                         canvasCtx.fillStyle = COLOR_GROUND;
                     }
-                    canvasCtx.fillRect(x * scaling, y * scaling, scaling, scaling);
+                    // For optimization purposes, only draw when state has changed.
+                    if (board[x][y].lastState !== board[x][y].state) {
+                        canvasCtx.fillRect(x * scaling, y * scaling, scaling, scaling);
+                    }
                 }
             }
             let counter = getDomElement('cellCounter');
@@ -63,7 +97,8 @@ let conway = (function () {
          */
         function cycle() {
             // Deep-copy the old board
-            let newBoard = JSON.parse(JSON.stringify(board));
+            //let newBoard = JSON.parse(JSON.stringify(board));
+            let newBoard = recursiveDeepCopy(board);
 
             for (let x = 0; x < board.length; x++) {
                 for (let y = 0; y < board[x].length; y++) {
@@ -102,6 +137,7 @@ let conway = (function () {
                             }
                         }
                     }
+                    newBoardCurrentCell.lastState = newBoardCurrentCell.state;
                     if (currentCell.state === STATE_DEAD && neighbourCounter === 3) {
                         newBoardCurrentCell.state = STATE_ALIVE;
                     } else if (currentCell.state === STATE_ALIVE) {
@@ -117,19 +153,22 @@ let conway = (function () {
         }
 
         async function animate() {
-            generationCounter.textContent = cycleCounter;
+            lastCycleTime = time;
             time = Date.now();
+            lastCycleTime = Number.parseFloat((60 / ((time - lastCycleTime) / 1000)) / 60).toPrecision(3);
+            cyclesPerSecondCounter.textContent = lastCycleTime;
+            generationCounter.textContent = cycleCounter;
             if (startTime === undefined) {
                 startTime = time;
             }
 
             let elapsedSeconds = (time - startTime) / 1000;
-            cyclesPerSecondCounter.textContent = Number.parseFloat(cycleCounter / elapsedSeconds).toPrecision(3);
+            cyclesPerSecondAverageCounter.textContent = Number.parseFloat(cycleCounter / elapsedSeconds).toPrecision(3);
 
             cycle();
             drawBoard();
 
-            await sleep(50);
+            //await sleep(0);
             if (cycleCounter < 20000) {
                 cycleCounter++;
                 requestAnimationFrame(animate)
@@ -174,6 +213,7 @@ let conway = (function () {
             let counter = getDomElement(params.amountOfFields);
             counter.textContent = width * height;
             generationCounter = getDomElement(params.generationCounter);
+            cyclesPerSecondAverageCounter = getDomElement(params.cyclesPerSecondAverageCounter);
             cyclesPerSecondCounter = getDomElement(params.cyclesPerSecondCounter);
             initBoardArray(width, height);
             requestAnimationFrame(animate);
