@@ -12,7 +12,7 @@ let conway = (function () {
         let generationCounter = undefined;
         let cyclesPerSecondCounter = undefined;
         let cyclesPerSecondAverageCounter = undefined;
-        let canvas, canvasCtx, width, height, scaling, startTime, time, lastCycleTime;
+        let canvas, canvasCtx, width, height, scaling, startTime, time, lastCycleTime, cellCounter;
         let board = new Array(0);
 
         /**
@@ -88,8 +88,7 @@ let conway = (function () {
                     }
                 }
             }
-            let counter = getDomElement('cellCounter');
-            counter.textContent = livingCellCounter;
+            cellCounter.textContent = livingCellCounter;
         }
 
         /**
@@ -215,6 +214,7 @@ let conway = (function () {
             generationCounter = getDomElement(params.generationCounter);
             cyclesPerSecondAverageCounter = getDomElement(params.cyclesPerSecondAverageCounter);
             cyclesPerSecondCounter = getDomElement(params.cyclesPerSecondCounter);
+            cellCounter = getDomElement('cellCounter');
             initBoardArray(width, height);
             requestAnimationFrame(animate);
         }
