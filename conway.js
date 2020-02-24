@@ -13,7 +13,7 @@ let conway = (function () {
         let cyclesPerSecondCounter = undefined;
         let cyclesPerSecondAverageCounter = undefined;
         let canvas, canvasCtx, width, height, scaling, startTime, time, lastCycleTime, cellCounter;
-        let board = new Array(0);
+        let grid = new Array(0);
 
         /**
          *
@@ -70,20 +70,20 @@ let conway = (function () {
         }
 
         /**
-         * Draws the board to the canvas.
+         * Draws the grid to the canvas.
          */
-        function drawBoard() {
+        function drawGrid() {
             let livingCellCounter = 0;
-            for (let x = 0; x < board.length; x++) {
-                for (let y = 0; y < board[x].length; y++) {
-                    if (board[x][y].state === STATE_ALIVE) {
+            for (let x = 0; x < grid.length; x++) {
+                for (let y = 0; y < grid[x].length; y++) {
+                    if (grid[x][y].state === STATE_ALIVE) {
                         livingCellCounter++;
                         canvasCtx.fillStyle = COLOR_CELL;
                     } else {
                         canvasCtx.fillStyle = COLOR_GROUND;
                     }
                     // For optimization purposes, only draw when state has changed.
-                    if (board[x][y].lastState !== board[x][y].state) {
+                    if (grid[x][y].lastState !== grid[x][y].state) {
                         canvasCtx.fillRect(x * scaling, y * scaling, scaling, scaling);
                     }
                 }
@@ -95,16 +95,16 @@ let conway = (function () {
          *
          */
         function cycle() {
-            // Deep-copy the old board
-            //let newBoard = JSON.parse(JSON.stringify(board));
-            let newBoard = recursiveDeepCopy(board);
+            // Deep-copy the old grid
+            //let newGrid = JSON.parse(JSON.stringify(grid));
+            let newGrid = recursiveDeepCopy(grid);
 
-            for (let x = 0; x < board.length; x++) {
-                for (let y = 0; y < board[x].length; y++) {
-                    let currentCell = board[x][y];
-                    let boardXLength = board.length;
-                    let boardYLength = board[x].length;
-                    let newBoardCurrentCell = newBoard[x][y];
+            for (let x = 0; x < grid.length; x++) {
+                for (let y = 0; y < grid[x].length; y++) {
+                    let currentCell = grid[x][y];
+                    let gridXLength = grid.length;
+                    let gridYLength = grid[x].length;
+                    let newGridCurrentCell = newGrid[x][y];
                     let neighbourCounter = 0;
                     /**
                      * We need to check the surrounding neighbours from x - 1 to x + 1 and y - 1 to y + 1.
@@ -120,35 +120,35 @@ let conway = (function () {
 
                                 // Edge detection
                                 if (localX === -1) {
-                                    localX = boardXLength - 1;
-                                } else if (localX === boardXLength) {
+                                    localX = gridXLength - 1;
+                                } else if (localX === gridXLength) {
                                     localX = 0;
                                 }
 
                                 if (localY === -1) {
-                                    localY = boardYLength - 1;
-                                } else if (localY === boardYLength) {
+                                    localY = gridYLength - 1;
+                                } else if (localY === gridYLength) {
                                     localY = 0;
                                 }
-                                if (board[localX][localY].state === STATE_ALIVE) {
+                                if (grid[localX][localY].state === STATE_ALIVE) {
                                     neighbourCounter++;
                                 }
                             }
                         }
                     }
-                    newBoardCurrentCell.lastState = newBoardCurrentCell.state;
+                    newGridCurrentCell.lastState = newGridCurrentCell.state;
                     if (currentCell.state === STATE_DEAD && neighbourCounter === 3) {
-                        newBoardCurrentCell.state = STATE_ALIVE;
+                        newGridCurrentCell.state = STATE_ALIVE;
                     } else if (currentCell.state === STATE_ALIVE) {
                         if (neighbourCounter < 2 || neighbourCounter > 3) {
-                            newBoardCurrentCell.state = STATE_DEAD;
+                            newGridCurrentCell.state = STATE_DEAD;
                         }
                     }
                 }
             }
 
-            // Swap the old board for the new
-            board = newBoard;
+            // Swap the old grid for the new
+            grid = newGrid;
         }
 
         async function animate() {
@@ -165,7 +165,7 @@ let conway = (function () {
             cyclesPerSecondAverageCounter.textContent = Number.parseFloat(cycleCounter / elapsedSeconds).toPrecision(3);
 
             cycle();
-            drawBoard();
+            drawGrid();
 
             //await sleep(0);
             if (cycleCounter < 20000) {
@@ -179,31 +179,32 @@ let conway = (function () {
          * @param x
          * @param y
          */
-        function initBoardArray(x, y) {
+        function initGridArray(x, y) {
             for (let i = 0; i < x; i++) {
-                board.push(new Array(0));
+                grid.push(new Array(0));
                 for (let j = 0; j < y; j++) {
                     let state = Math.random();
                     state = state >= 0.90 ? STATE_ALIVE : STATE_DEAD;
-                    board[i].push(new Cell(state));
+                    grid[i].push(new Cell(state));
                 }
             }
+            grid.active = true;
         }
 
         /**
          * Initializes the game.
          * @param params Object with the following properties:
-         *        int boardWidth: The width of the game board in pixels (default 100).
-         *        int boardHeight: The height of the game board in pixels (default 100).
+         *        int gridWidth: The width of the game grid in pixels (default 100).
+         *        int gridHeight: The height of the game grid in pixels (default 100).
          *        int scaling: The pixel scaling to increase visibility of the cells (default 2).
          *        string canvasSelector: DOM-selector for the canvas element.
-         *        string amountOfFields: DOM-selector for the total amount of fields on the board.
+         *        string amountOfFields: DOM-selector for the total amount of fields on the grid.
          *        string livingCellsCounter: DOM-selector for the living cell counter.
          *        string generationCounter: DOM-selector for the generation counter.
          */
         this.init = (params) => {
-            width = params.boardWidth ? params.boardWidth : 100;
-            height = params.boardHeight ? params.boardWidth : 100;
+            width = params.gridWidth ? params.gridWidth : 100;
+            height = params.gridHeight ? params.gridHeight : 100;
             scaling = params.scaling  ? params.scaling : 2;
             canvas = getDomElement(params.canvasSelector);
             canvas.width = width * scaling;
@@ -215,7 +216,7 @@ let conway = (function () {
             cyclesPerSecondAverageCounter = getDomElement(params.cyclesPerSecondAverageCounter);
             cyclesPerSecondCounter = getDomElement(params.cyclesPerSecondCounter);
             cellCounter = getDomElement('cellCounter');
-            initBoardArray(width, height);
+            initGridArray(width, height);
             requestAnimationFrame(animate);
         }
     }

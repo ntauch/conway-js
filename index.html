@@ -5,7 +5,7 @@
     <title>Conway's Game of Life</title>
 </head>
 <body>
-    <canvas id="canvasBoard"></canvas>
+    <canvas id="canvasGrid"></canvas>
     <div>
         Anzahl Felder: <span id="amountOfFields"></span>
     </div>
@@ -28,10 +28,10 @@
         (function () {
             let game = new conway();
             let params = {
-                boardWidth: 100,
-                boardHeight: 100,
+                gridWidth: 8,
+                gridHeight: 8,
                 scaling: 5,
-                canvasSelector: 'canvasBoard',
+                canvasSelector: 'canvasGrid',
                 amountOfFields: 'amountOfFields',
                 livingCellsCounter: 'cellCounter',
                 generationCounter: 'generationCounter',
