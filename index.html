@@ -28,15 +28,16 @@
         (function () {
             let game = new conway();
             let params = {
-                gridWidth: 8,
-                gridHeight: 8,
-                scaling: 5,
+                gridWidth: 250,
+                gridHeight: 250,
+                scaling: 4,
                 canvasSelector: 'canvasGrid',
                 amountOfFields: 'amountOfFields',
                 livingCellsCounter: 'cellCounter',
                 generationCounter: 'generationCounter',
                 cyclesPerSecondAverageCounter: 'cyclesPerSecondAverageCounter',
-                cyclesPerSecondCounter: 'cyclesPerSecondCounter'
+                cyclesPerSecondCounter: 'cyclesPerSecondCounter',
+                sleepPerCycle: 0
             };
             game.init(params);
         })();

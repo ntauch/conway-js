@@ -12,8 +12,9 @@ let conway = (function () {
         let generationCounter = undefined;
         let cyclesPerSecondCounter = undefined;
         let cyclesPerSecondAverageCounter = undefined;
-        let canvas, canvasCtx, width, height, scaling, startTime, time, lastCycleTime, cellCounter;
-        let grid = new Array(0);
+        let canvas, canvasCtx, width, height, scaling, startTime, time, lastCycleTime, cellCounter, activeGrid, previousGrid, sleepPerCycle;
+        let gridA = new Array(0);
+        let gridB = new Array(0);
 
         /**
          *
@@ -34,8 +35,7 @@ let conway = (function () {
          *
          */
         class Cell {
-            state = undefined;
-            lastState = undefined;
+            //state = undefined;
             constructor(state) {
                 this.state = state;
             }
@@ -74,16 +74,16 @@ let conway = (function () {
          */
         function drawGrid() {
             let livingCellCounter = 0;
-            for (let x = 0; x < grid.length; x++) {
-                for (let y = 0; y < grid[x].length; y++) {
-                    if (grid[x][y].state === STATE_ALIVE) {
+            for (let x = 0; x < activeGrid.length; x++) {
+                for (let y = 0; y < activeGrid[x].length; y++) {
+                    if (activeGrid[x][y].state === STATE_ALIVE) {
                         livingCellCounter++;
                         canvasCtx.fillStyle = COLOR_CELL;
                     } else {
                         canvasCtx.fillStyle = COLOR_GROUND;
                     }
                     // For optimization purposes, only draw when state has changed.
-                    if (grid[x][y].lastState !== grid[x][y].state) {
+                    if (activeGrid[x][y].state !== previousGrid[x][y].state) {
                         canvasCtx.fillRect(x * scaling, y * scaling, scaling, scaling);
                     }
                 }
@@ -91,20 +91,33 @@ let conway = (function () {
             cellCounter.textContent = livingCellCounter;
         }
 
+        function switchGrids() {
+            if (gridA.active) {
+                gridA.active = false;
+                gridB.active = true;
+                activeGrid = gridB;
+                previousGrid = gridA;
+            } else {
+                gridA.active = true;
+                gridB.active = false;
+                activeGrid = gridA;
+                previousGrid = gridB;
+            }
+        }
+
         /**
          *
          */
         function cycle() {
-            // Deep-copy the old grid
-            //let newGrid = JSON.parse(JSON.stringify(grid));
-            let newGrid = recursiveDeepCopy(grid);
 
-            for (let x = 0; x < grid.length; x++) {
-                for (let y = 0; y < grid[x].length; y++) {
-                    let currentCell = grid[x][y];
-                    let gridXLength = grid.length;
-                    let gridYLength = grid[x].length;
-                    let newGridCurrentCell = newGrid[x][y];
+            switchGrids();
+
+            for (let x = 0; x < previousGrid.length; x++) {
+                for (let y = 0; y < previousGrid[x].length; y++) {
+                    let previousCell = previousGrid[x][y];
+                    let gridXLength = previousGrid.length;
+                    let gridYLength = previousGrid[x].length;
+                    let newGridCurrentCell = activeGrid[x][y];
                     let neighbourCounter = 0;
                     /**
                      * We need to check the surrounding neighbours from x - 1 to x + 1 and y - 1 to y + 1.
@@ -130,25 +143,26 @@ let conway = (function () {
                                 } else if (localY === gridYLength) {
                                     localY = 0;
                                 }
-                                if (grid[localX][localY].state === STATE_ALIVE) {
+                                if (previousGrid[localX][localY].state === STATE_ALIVE) {
                                     neighbourCounter++;
                                 }
                             }
                         }
                     }
-                    newGridCurrentCell.lastState = newGridCurrentCell.state;
-                    if (currentCell.state === STATE_DEAD && neighbourCounter === 3) {
+                    if (previousCell.state === STATE_DEAD && neighbourCounter === 3) {
                         newGridCurrentCell.state = STATE_ALIVE;
-                    } else if (currentCell.state === STATE_ALIVE) {
+                    } else if (previousCell.state === STATE_ALIVE) {
                         if (neighbourCounter < 2 || neighbourCounter > 3) {
                             newGridCurrentCell.state = STATE_DEAD;
+                        } else  {
+                            newGridCurrentCell.state = STATE_ALIVE;
                         }
+                    }
+                    else {
+                        newGridCurrentCell.state = STATE_DEAD;
                     }
                 }
             }
-
-            // Swap the old grid for the new
-            grid = newGrid;
         }
 
         async function animate() {
@@ -167,7 +181,7 @@ let conway = (function () {
             cycle();
             drawGrid();
 
-            //await sleep(0);
+            await sleep(sleepPerCycle);
             if (cycleCounter < 20000) {
                 cycleCounter++;
                 requestAnimationFrame(animate)
@@ -181,14 +195,18 @@ let conway = (function () {
          */
         function initGridArray(x, y) {
             for (let i = 0; i < x; i++) {
-                grid.push(new Array(0));
+                gridA.push(new Array(0));
                 for (let j = 0; j < y; j++) {
                     let state = Math.random();
                     state = state >= 0.90 ? STATE_ALIVE : STATE_DEAD;
-                    grid[i].push(new Cell(state));
+                    gridA[i].push(new Cell(state));
                 }
             }
-            grid.active = true;
+            gridA.active = false;
+            gridA.name = 'gridA';
+            gridB = recursiveDeepCopy(gridA);
+            gridA.active = true;
+            gridB.name = 'gridB';
         }
 
         /**
@@ -216,6 +234,7 @@ let conway = (function () {
             cyclesPerSecondAverageCounter = getDomElement(params.cyclesPerSecondAverageCounter);
             cyclesPerSecondCounter = getDomElement(params.cyclesPerSecondCounter);
             cellCounter = getDomElement('cellCounter');
+            sleepPerCycle = params.sleepPerCycle ? params.sleepPerCycle : 0;
             initGridArray(width, height);
             requestAnimationFrame(animate);
         }
