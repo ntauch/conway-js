@@ -74,16 +74,14 @@ let conway = (function () {
          */
         function drawGrid() {
             let livingCellCounter = 0;
+            canvasCtx.clearRect(0,0, width * scaling, height * scaling);
             for (let x = 0; x < activeGrid.length; x++) {
                 for (let y = 0; y < activeGrid[x].length; y++) {
-                    if (activeGrid[x][y].state === STATE_ALIVE) {
-                        livingCellCounter++;
-                        canvasCtx.fillStyle = COLOR_CELL;
-                    } else {
-                        canvasCtx.fillStyle = COLOR_GROUND;
-                    }
                     // For optimization purposes, only draw when state has changed.
-                    if (activeGrid[x][y].state !== previousGrid[x][y].state) {
+                    //if (activeGrid[x][y].state !== previousGrid[x][y].state) {
+                    //    canvasCtx.fillRect(x * scaling, y * scaling, scaling, scaling);
+                    //}
+                    if (activeGrid[x][y].state === STATE_ALIVE) {
                         canvasCtx.fillRect(x * scaling, y * scaling, scaling, scaling);
                     }
                 }
@@ -228,6 +226,7 @@ let conway = (function () {
             canvas.width = width * scaling;
             canvas.height = height * scaling;
             canvasCtx = canvas.getContext('2d');
+            canvasCtx.fillStyle = COLOR_CELL;
             let counter = getDomElement(params.amountOfFields);
             counter.textContent = width * height;
             generationCounter = getDomElement(params.generationCounter);
