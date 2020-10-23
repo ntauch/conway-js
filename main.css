@@ -1,0 +1,21 @@
+body {
+    background: #393939;
+}
+
+#canvasGrid {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+    background: darkgray;
+}
+
+#metaInfo {
+    display: inline-block;
+}
+
+#metaInfo div {
+    background-color: antiquewhite;
+    display: flex;
+}

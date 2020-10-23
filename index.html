@@ -3,41 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Conway's Game of Life</title>
+    <link rel="stylesheet" href="main.css">
 </head>
 <body>
+    <div id="metaInfo">
+        <div>
+            Anzahl Felder: <span id="amountOfFields"></span>
+        </div>
+        <div>
+            Lebendige Zellen: <span id="cellCounter"></span>
+        </div>
+        <div>
+            Generation: <span id="generationCounter"></span>
+        </div>
+        <div>
+            Cycles per Second (Average): <span id="cyclesPerSecondAverageCounter"></span>
+        </div>
+        <div>
+            Cycles per Second: <span id="cyclesPerSecondCounter"></span>
+        </div>
+    </div>
     <canvas id="canvasGrid"></canvas>
-    <div>
-        Anzahl Felder: <span id="amountOfFields"></span>
-    </div>
-    <div>
-        Lebendige Zellen: <span id="cellCounter"></span>
-    </div>
-    <div>
-        Generation: <span id="generationCounter"></span>
-    </div>
-    <div>
-        Cycles per Second (Average): <span id="cyclesPerSecondAverageCounter"></span>
-    </div>
-    <div>
-        Cycles per Second: <span id="cyclesPerSecondCounter"></span>
-    </div>
-
 <footer>
     <script src="conway.js"></script>
     <script>
         (function () {
             let game = new conway();
             let params = {
-                gridWidth: 250,
-                gridHeight: 250,
-                scaling: 4,
+                gridWidth: 100,
+                gridHeight: 100,
+                scaling: 5,
                 canvasSelector: 'canvasGrid',
                 amountOfFields: 'amountOfFields',
                 livingCellsCounter: 'cellCounter',
                 generationCounter: 'generationCounter',
                 cyclesPerSecondAverageCounter: 'cyclesPerSecondAverageCounter',
                 cyclesPerSecondCounter: 'cyclesPerSecondCounter',
-                sleepPerCycle: 0
+                sleepPerCycle: 100
             };
             game.init(params);
         })();
